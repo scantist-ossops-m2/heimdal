@@ -1547,6 +1547,10 @@ tgs_build_reply(krb5_context context,
 
 	s = &adtkt.cname;
 	r = adtkt.crealm;
+    } else if (s == NULL) {
+	ret = KRB5KDC_ERR_S_PRINCIPAL_UNKNOWN;
+	_kdc_set_e_text(priv, "No server in request");
+	goto out;
     }
 
     _krb5_principalname2krb5_principal(context, &sp, *s, r);
@@ -1839,6 +1843,20 @@ server_lookup:
 				     &self, NULL);
 	    if (ret) {
 		kdc_log(context, config, 0, "Failed to decode PA-S4U2Self");
+		goto out;
+	    }
+
+	    if (!krb5_checksum_is_keyed(context, self.cksum.cksumtype)) {
+		free_PA_S4U2Self(&self);
+		kdc_log(context, config, 0, "Reject PA-S4U2Self with unkeyed checksum");
+		ret = KRB5KRB_AP_ERR_INAPP_CKSUM;
+		goto out;
+	    }
+
+	    if (!krb5_checksum_is_keyed(context, self.cksum.cksumtype)) {
+		free_PA_S4U2Self(&self);
+		kdc_log(context, config, 0, "Reject PA-S4U2Self with unkeyed checksum");
+		ret = KRB5KRB_AP_ERR_INAPP_CKSUM;
 		goto out;
 	    }
 
