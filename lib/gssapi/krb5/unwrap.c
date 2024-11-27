@@ -165,9 +165,10 @@ unwrap_des
   output_message_buffer->value  = malloc(output_message_buffer->length);
   if(output_message_buffer->length != 0 && output_message_buffer->value == NULL)
       return GSS_S_FAILURE;
-  memcpy (output_message_buffer->value,
-	  p + 24,
-	  output_message_buffer->length);
+  if (output_message_buffer->value != NULL)
+      memcpy (output_message_buffer->value,
+	      p + 24,
+	      output_message_buffer->length);
   return GSS_S_COMPLETE;
 }
 
@@ -204,7 +205,7 @@ unwrap_des3
   if (ret)
       return ret;
 
-  if (memcmp (p, "\x04\x00", 2) != 0) /* HMAC SHA1 DES3_KD */
+  if (ct_memcmp (p, "\x04\x00", 2) != 0) /* HMAC SHA1 DES3_KD */
     return GSS_S_BAD_SIG;
   p += 2;
   if (memcmp (p, "\x02\x00", 2) == 0) {
@@ -346,9 +347,10 @@ unwrap_des3
   output_message_buffer->value  = malloc(output_message_buffer->length);
   if(output_message_buffer->length != 0 && output_message_buffer->value == NULL)
       return GSS_S_FAILURE;
-  memcpy (output_message_buffer->value,
-	  p + 36,
-	  output_message_buffer->length);
+  if (output_message_buffer->value != NULL)
+      memcpy (output_message_buffer->value,
+	      p + 36,
+	      output_message_buffer->length);
   return GSS_S_COMPLETE;
 }
 
